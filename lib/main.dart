@@ -39,6 +39,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  TextStyle dateStyle =
+      const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black);
+  TextStyle contentStyle =
+      const TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: Colors.black);
   List<Color> cardColors = const [
     Color(0xfffe4365),
     Color(0xfff1404b),
@@ -66,6 +70,19 @@ class _MyHomePageState extends State<MyHomePage> {
     NoteModel('note number therteen ', DateTime.now()),
     NoteModel('note number fourteen ', DateTime.now()),
     NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
   ];
   @override
   Widget build(BuildContext context) {
@@ -86,6 +103,13 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           itemCount: notes.length,
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            print('object');
+          },
+          child: const Icon(Icons.note_add),
+          backgroundColor: Colors.purple,
+        ),
       ),
     );
   }
@@ -93,35 +117,31 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget noteCard(NoteModel note) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             gradient: LinearGradient(
-              begin: Alignment.centerRight,
-              end: Alignment.centerLeft,
-              // colors: [Color(0xff526584), Color(0xff1122ff)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
                 cardColors[ran.nextInt(cardColors.length)],
                 cardColors[ran.nextInt(cardColors.length)],
               ],
             )),
-        height: 100,
-        width: double.infinity,
-        child: Column(children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              DateFormat('KK:mm ,dd-mm-yyyy ').format(note.time),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 8, color: Colors.black),
-            ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: 50,
           ),
-          Flexible(
-              flex: 1,
-              fit: FlexFit.tight,
-              child: Text(note.content +
-                  " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. ")),
-        ]),
+          child: Column(children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(DateFormat('KK:mm ,dd-mm-yyyy ').format(note.time), style: dateStyle),
+            ),
+            Text(note.content, style: contentStyle),
+          ]),
+        ),
       ),
     );
   }
