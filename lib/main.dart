@@ -1,4 +1,13 @@
+import 'dart:math';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:tasks_brz/models/noteModel.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,81 +20,138 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
+        textTheme: GoogleFonts.balsamiqSansTextTheme(Theme.of(context).textTheme),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter--;
-    });
-  }
-
+  List<Color> cardColors = const [
+    Color(0xfffe4365),
+    Color(0xfff1404b),
+    Color(0xfffbd14b),
+    Color(0xfffc9d9a),
+    Color(0xff008c9e),
+    Color(0xff7ec5af),
+    Color(0xfffec8c9),
+    Color(0xffe88479),
+  ];
+  Random ran = Random();
+  List<NoteModel> notes = [
+    NoteModel('note number one ', DateTime.now()),
+    NoteModel('note number two ', DateTime.now()),
+    NoteModel('note number three ', DateTime.now()),
+    NoteModel('note number four ', DateTime.now()),
+    NoteModel('note number five ', DateTime.now()),
+    NoteModel('note number six ', DateTime.now()),
+    NoteModel('note number Seven ', DateTime.now()),
+    NoteModel('note number Eight ', DateTime.now()),
+    NoteModel('note number Nine ', DateTime.now()),
+    NoteModel('note number Ten ', DateTime.now()),
+    NoteModel('note number eleven ', DateTime.now()),
+    NoteModel('note number twelve ', DateTime.now()),
+    NoteModel('note number therteen ', DateTime.now()),
+    NoteModel('note number fourteen ', DateTime.now()),
+    NoteModel('note number fivteen ', DateTime.now()),
+  ];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xfff4f4f4), Color(0xffe4e7ec)],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Decremenet',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: myCustomAppBar(),
+        body: ListView.builder(
+          itemBuilder: (context, index) {
+            return noteCard(notes[index]);
+          },
+          itemCount: notes.length,
+        ),
+      ),
+    );
+  }
+
+  Widget noteCard(NoteModel note) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.centerRight,
+              end: Alignment.centerLeft,
+              // colors: [Color(0xff526584), Color(0xff1122ff)],
+              colors: [
+                cardColors[ran.nextInt(cardColors.length)],
+                cardColors[ran.nextInt(cardColors.length)],
+              ],
+            )),
+        height: 100,
+        width: double.infinity,
+        child: Column(children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              DateFormat('KK:mm ,dd-mm-yyyy ').format(note.time),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 8, color: Colors.black),
+            ),
+          ),
+          Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
+              child: Text(note.content +
+                  " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. ")),
+        ]),
+      ),
+    );
+  }
+
+  myCustomAppBar() {
+    return AppBar(
+      systemOverlayStyle: const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      centerTitle: true,
+      title: RichText(
+        text: TextSpan(children: [
+          TextSpan(
+              text: 'Tasks',
+              style: GoogleFonts.balsamiqSans(
+                  textStyle: const TextStyle(
+                color: Color(0xff08182b),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ))),
+          TextSpan(
+              text: 'BRZ',
+              style: GoogleFonts.balsamiqSans(
+                  textStyle: const TextStyle(
+                color: Color(0xfff1404b),
+                fontWeight: FontWeight.normal,
+                fontSize: 18,
+              ))),
+        ]),
+      ),
     );
   }
 }
