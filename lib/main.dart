@@ -1,15 +1,25 @@
 import 'dart:math';
-
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tasks_brz/models/noteModel.dart';
 import 'package:intl/intl.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:tasks_brz/screens/noteScreen.dart';
+import 'package:tasks_brz/ui/custom_app_bar.dart';
+import 'data/lists.dart';
 
-void main() {
+void main() async {
+  // Avoid errors caused by flutter upgrade.
+// Importing 'package:flutter/widgets.dart' is required.
+  WidgetsFlutterBinding.ensureInitialized();
+// Open the database and store the reference.
+  // ignore: unused_local_variable
+
   runApp(const MyApp());
 }
 
@@ -26,7 +36,23 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.red,
         textTheme: GoogleFonts.balsamiqSansTextTheme(Theme.of(context).textTheme),
       ),
-      home: const MyHomePage(),
+      home: AnimatedSplashScreen(
+        duration: 3000,
+        splash: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text('Made With'),
+            FlutterLogo(
+              style: FlutterLogoStyle.horizontal,
+              size: 100,
+            ),
+          ],
+        ),
+        nextScreen: const MyHomePage(),
+        splashTransition: SplashTransition.rotationTransition,
+        pageTransitionType: PageTransitionType.fade,
+        backgroundColor: const Color(0xfff4f4f4),
+      ),
     );
   }
 }
@@ -43,47 +69,9 @@ class _MyHomePageState extends State<MyHomePage> {
       const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black);
   TextStyle contentStyle =
       const TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: Colors.black);
-  List<Color> cardColors = const [
-    Color(0xfffe4365),
-    Color(0xfff1404b),
-    Color(0xfffbd14b),
-    Color(0xfffc9d9a),
-    Color(0xff008c9e),
-    Color(0xff7ec5af),
-    Color(0xfffec8c9),
-    Color(0xffe88479),
-  ];
-  Random ran = Random();
-  List<NoteModel> notes = [
-    NoteModel('note number one ', DateTime.now()),
-    NoteModel('note number two ', DateTime.now()),
-    NoteModel('note number three ', DateTime.now()),
-    NoteModel('note number four ', DateTime.now()),
-    NoteModel('note number five ', DateTime.now()),
-    NoteModel('note number six ', DateTime.now()),
-    NoteModel('note number Seven ', DateTime.now()),
-    NoteModel('note number Eight ', DateTime.now()),
-    NoteModel('note number Nine ', DateTime.now()),
-    NoteModel('note number Ten ', DateTime.now()),
-    NoteModel('note number eleven ', DateTime.now()),
-    NoteModel('note number twelve ', DateTime.now()),
-    NoteModel('note number therteen ', DateTime.now()),
-    NoteModel('note number fourteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-    NoteModel('note number fivteen ', DateTime.now()),
-  ];
+
+  Random random = Random();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -105,7 +93,9 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            print('object');
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return const NoteScreen();
+            }));
           },
           child: const Icon(Icons.note_add),
           backgroundColor: Colors.purple,
@@ -121,15 +111,18 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Container(
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                cardColors[ran.nextInt(cardColors.length)],
-                cardColors[ran.nextInt(cardColors.length)],
-              ],
-            )),
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              //cardColors[random.nextInt(cardColors.length)],
+              //cardColors[random.nextInt(cardColors.length)],
+              cardColors[note.color1],
+              cardColors[note.color2],
+            ],
+          ),
+        ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(
             minHeight: 50,
@@ -137,40 +130,25 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(children: [
             Align(
               alignment: Alignment.centerRight,
-              child: Text(DateFormat('KK:mm ,dd-mm-yyyy ').format(note.time), style: dateStyle),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        note.isImportant ? note.isImportant = false : note.isImportant = true;
+                      });
+                    },
+                    icon: Icon(note.isImportant ? Icons.star : Icons.star_border,
+                        color: Colors.indigo),
+                  ),
+                  Text(DateFormat('KK:mm ,dd-mm-yyyy ').format(note.createdOn), style: dateStyle),
+                ],
+              ),
             ),
             Text(note.content, style: contentStyle),
           ]),
         ),
-      ),
-    );
-  }
-
-  myCustomAppBar() {
-    return AppBar(
-      systemOverlayStyle: const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      centerTitle: true,
-      title: RichText(
-        text: TextSpan(children: [
-          TextSpan(
-              text: 'Tasks',
-              style: GoogleFonts.balsamiqSans(
-                  textStyle: const TextStyle(
-                color: Color(0xff08182b),
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ))),
-          TextSpan(
-              text: 'BRZ',
-              style: GoogleFonts.balsamiqSans(
-                  textStyle: const TextStyle(
-                color: Color(0xfff1404b),
-                fontWeight: FontWeight.normal,
-                fontSize: 18,
-              ))),
-        ]),
       ),
     );
   }
