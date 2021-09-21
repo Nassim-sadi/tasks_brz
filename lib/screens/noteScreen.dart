@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:tasks_brz/data/database.dart';
+import 'package:tasks_brz/models/noteModel.dart';
 import 'package:tasks_brz/ui/custom_app_bar.dart';
 
 class NoteScreen extends StatefulWidget {
@@ -66,14 +67,16 @@ class _NoteScreenState extends State<NoteScreen> {
                     // Validate will return true if the form is valid, or false if
                     // the form is invalid.
                     if (_formKey.currentState!.validate()) {
-                      int i = await NotesDatabase.instance.insert({
-                        NotesDatabase.noteContent: myController.text,
-                        NotesDatabase.noteBool: isImportant,
-                        NotesDatabase.noteCreatedOn: DateTime.now().toIso8601String(),
-                        NotesDatabase.noteColor1: 1,
-                        NotesDatabase.noteColor2: 3,
+                      setState(() {
+                        DatabaseHelper.instance.insert({
+                          DatabaseHelper.noteContent: myController.text,
+                          DatabaseHelper.noteBool: isImportant,
+                          DatabaseHelper.noteCreatedOn: DateTime.now().toIso8601String(),
+                          DatabaseHelper.noteColor1: 1,
+                          DatabaseHelper.noteColor2: 3,
+                        });
+                        Navigator.pop(context, true);
                       });
-                      print('the return data from insert is : $i');
                     }
                   },
                   child: const Text('Submit'),
@@ -86,9 +89,9 @@ class _NoteScreenState extends State<NoteScreen> {
                     // Validate will return true if the form is valid, or false if
                     // the form is invalid.
 
-                    List<Map<String, dynamic>> result;
-                    result = await NotesDatabase.instance.queryAll();
-                    print('the return data from insert is : $result');
+                    List<NoteModel> result;
+                    result = await DatabaseHelper.instance.queryAll();
+                    print('the return data from insert is : ${result.length}');
                   },
                   child: const Text('Get Querry'),
                 ),
@@ -100,7 +103,12 @@ class _NoteScreenState extends State<NoteScreen> {
                     // Validate will return true if the form is valid, or false if
                     // the form is invalid.
 
-                    await NotesDatabase.instance.delete(1);
+                    await DatabaseHelper.instance.delete(2);
+                    await DatabaseHelper.instance.delete(3);
+                    await DatabaseHelper.instance.delete(4);
+                    await DatabaseHelper.instance.delete(5);
+                    await DatabaseHelper.instance.delete(6);
+                    await DatabaseHelper.instance.delete(7);
 
                     print('Deleted');
                   },

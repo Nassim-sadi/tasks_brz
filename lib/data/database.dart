@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:tasks_brz/models/noteModel.dart';
 
-class NotesDatabase {
+class DatabaseHelper {
   //Data types
   static const idType = 'INTEGER PRIMARY KEY';
   static const boolType = 'BOOLEAN NOT NULL DEFAULT 0';
@@ -19,9 +19,9 @@ class NotesDatabase {
   static const noteColor1 = NoteFields.color1;
   static const noteColor2 = NoteFields.color2;
 
-  static final NotesDatabase instance = NotesDatabase._init();
+  static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
-  NotesDatabase._init();
+  DatabaseHelper._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -60,9 +60,12 @@ class NotesDatabase {
     return await db.insert(notesTable, row);
   }
 
-  Future<List<Map<String, dynamic>>> queryAll() async {
+  Future<List<NoteModel>> queryAll() async {
     Database db = await instance.database;
-    return await db.query(notesTable);
+    var notes = await db.query(notesTable);
+    List<NoteModel> noteslist =
+        notes.isNotEmpty ? notes.map((e) => NoteModel.fromMap(e)).toList() : [];
+    return noteslist;
   }
 
   Future update(Map<String, dynamic> row) async {
@@ -76,6 +79,7 @@ class NotesDatabase {
 
   Future delete(int id) async {
     Database db = await instance.database;
+
     return await db.delete(notesTable, where: '$noteId = ?', whereArgs: [id]);
   }
 

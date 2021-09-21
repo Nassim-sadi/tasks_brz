@@ -6,6 +6,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tasks_brz/data/database.dart';
 import 'package:tasks_brz/models/noteModel.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
@@ -64,6 +65,10 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+Future<List<NoteModel>> getAllNotes() async {
+  return DatabaseHelper.instance.queryAll();
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   TextStyle dateStyle =
       const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black);
@@ -71,6 +76,10 @@ class _MyHomePageState extends State<MyHomePage> {
       const TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: Colors.black);
 
   Random random = Random();
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,69 +94,112 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: myCustomAppBar(),
-        body: ListView.builder(
-          itemBuilder: (context, index) {
-            return noteCard(notes[index]);
-          },
-          itemCount: notes.length,
-        ),
+        body: FutureBuilder<List<NoteModel>>(
+            future: getAllNotes(),
+            builder: (BuildContext context, AsyncSnapshot<List<NoteModel>> snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return snapshot.data!.isEmpty
+                  ? const Center(
+                      child: Text('Add a note by Pressing The add Button below'),
+                    )
+                  : ListView(
+                      children: snapshot.data!.map((note) {
+                        return noteCard(note);
+                      }).toList(),
+                    );
+            }),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return const NoteScreen();
-            }));
+            })).then((value) {
+              setState(() {});
+            });
           },
-          child: const Icon(Icons.note_add),
+          child: const Icon(Icons.note_add_outlined),
           backgroundColor: Colors.purple,
         ),
       ),
+      // Column(
+      //   children: [
+
+      //     ListView.builder(
+      //       itemBuilder: (context, index) {
+      //         return noteCard(notes[index]);
+      //       },
+      //       itemCount: notes.length,
+      //     ),
+      //   ],
+      // ),
     );
   }
 
   Widget noteCard(NoteModel note) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              //cardColors[random.nextInt(cardColors.length)],
-              //cardColors[random.nextInt(cardColors.length)],
-              cardColors[note.color1],
-              cardColors[note.color2],
-            ],
+    return Dismissible(
+      key: UniqueKey(),
+      direction: DismissDirection.startToEnd,
+      background: const Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Delete',
+          style: TextStyle(
+            color: Colors.redAccent,
           ),
         ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: 50,
-          ),
-          child: Column(children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        note.isImportant ? note.isImportant = false : note.isImportant = true;
-                      });
-                    },
-                    icon: Icon(note.isImportant ? Icons.star : Icons.star_border,
-                        color: Colors.indigo),
-                  ),
-                  Text(DateFormat('KK:mm ,dd-mm-yyyy ').format(note.createdOn), style: dateStyle),
-                ],
-              ),
+      ),
+      onDismissed: (DismissDirection direction) {
+        setState(() {
+          DatabaseHelper.instance.delete(note.id!);
+        });
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 10,
+        shadowColor: cardColors[note.color2],
+        margin: const EdgeInsets.fromLTRB(0, 10, 0, 5),
+        child: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                cardColors[note.color1],
+                cardColors[note.color2],
+              ],
             ),
-            Text(note.content, style: contentStyle),
-          ]),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: 50,
+            ),
+            child: Column(children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          note.isImportant == 1 ? note.isImportant = 0 : note.isImportant = 1;
+                        });
+                      },
+                      icon: Icon(note.isImportant == 1 ? Icons.star : Icons.star_border,
+                          color: Colors.indigo),
+                    ),
+                    Text(DateFormat('KK:mm ,dd-MM-yyyy ').format(note.createdOn), style: dateStyle),
+                  ],
+                ),
+              ),
+              Text(note.content, style: contentStyle),
+            ]),
+          ),
         ),
       ),
     );
