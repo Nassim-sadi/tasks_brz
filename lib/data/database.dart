@@ -62,7 +62,7 @@ class DatabaseHelper {
 
   Future<List<NoteModel>> queryAll() async {
     Database db = await instance.database;
-    var notes = await db.query(notesTable);
+    var notes = await db.query(notesTable, orderBy: '$noteBool DESC ,$noteCreatedOn ASC');
     List<NoteModel> noteslist =
         notes.isNotEmpty ? notes.map((e) => NoteModel.fromMap(e)).toList() : [];
     return noteslist;
