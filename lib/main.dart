@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tasks_brz/data/database.dart';
@@ -11,6 +12,7 @@ import 'package:tasks_brz/models/noteModel.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:tasks_brz/screens/noteScreen.dart';
+import 'package:tasks_brz/screens/note_edit.dart';
 import 'package:tasks_brz/ui/custom_app_bar.dart';
 import 'data/lists.dart';
 
@@ -80,8 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-      getAllNotes();
-
+    getAllNotes();
   }
 
   void _addItem(note, List list) {
@@ -118,8 +119,8 @@ class _MyHomePageState extends State<MyHomePage> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xff0000aa),
-            Color(0xff050505),
+            Color(0xffF0F8FF),
+            Color(0xffF0F8FF),
           ],
         ),
       ),
@@ -257,80 +258,90 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget noteCard(NoteModel note) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      elevation: 10,
-      margin: const EdgeInsets.fromLTRB(5, 10, 5, 5),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: cardColors[note.color2],
-              blurRadius: 15.0,
-              spreadRadius: 5.0,
-              offset: Offset.zero,
-            ),
-          ],
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              cardColors[note.color1],
-              cardColors[note.color2],
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NoteEdit(),
+                    settings: RouteSettings(arguments: note)))
+            .then((value) => setState(() {}));
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 10,
+        margin: const EdgeInsets.fromLTRB(5, 10, 5, 5),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: cardColors[note.color2],
+                blurRadius: 15.0,
+                spreadRadius: 5.0,
+                offset: Offset.zero,
+              ),
             ],
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                cardColors[note.color1],
+                cardColors[note.color2],
+              ],
+            ),
           ),
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: 50,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Text(DateFormat('KK:mm ,dd-MM-yyyy ').format(note.createdOn),
-                        style: dateStyle),
-                  ),
-                  Flexible(
-                    child: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          note.isImportant == 1 ? note.isImportant = 0 : note.isImportant = 1;
-                          DatabaseHelper.instance.update({
-                            DatabaseHelper.noteId: note.id,
-                            DatabaseHelper.noteBool: note.isImportant,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: 50,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(DateFormat('KK:mm dd-MM-yyyy').format(note.createdOn),
+                          style: dateStyle),
+                    ),
+                    Flexible(
+                      child: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            note.isImportant == 1 ? note.isImportant = 0 : note.isImportant = 1;
+                            DatabaseHelper.instance.update({
+                              DatabaseHelper.noteId: note.id,
+                              DatabaseHelper.noteBool: note.isImportant,
+                            });
                           });
-                        });
-                      },
-                      icon: Icon(
-                        note.isImportant == 1 ? Icons.star : Icons.star_border,
-                        color: note.isImportant == 1 ? Colors.red : Colors.grey[800],
-                        size: 20,
+                        },
+                        icon: Icon(
+                          note.isImportant == 1 ? Icons.star : Icons.star_border,
+                          color: note.isImportant == 1 ? Colors.red : Colors.grey[800],
+                          size: 20,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Text(note.content, style: contentStyle),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                  onPressed: () async {
-                    await DatabaseHelper.instance.delete(note.id!);
-
-                    setState(() {
-                      // _removeItem(index);
-                    });
-                  },
-                  icon: Icon(Icons.delete_forever, color: Colors.grey[800]),
+                  ],
                 ),
-              )
-            ],
+                Text(note.content, style: contentStyle),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: IconButton(
+                    onPressed: () async {
+                      await DatabaseHelper.instance.delete(note.id!);
+
+                      setState(() {
+                        // _removeItem(index);
+                      });
+                    },
+                    icon: Icon(Icons.close, color: Colors.grey[800], size: 16),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

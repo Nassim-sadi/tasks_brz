@@ -8,16 +8,15 @@ import 'package:tasks_brz/data/lists.dart';
 import 'package:tasks_brz/models/noteModel.dart';
 import 'package:tasks_brz/ui/custom_app_bar.dart';
 
-class NoteScreen extends StatefulWidget {
-  const NoteScreen({Key? key}) : super(key: key);
-
+class NoteEdit extends StatefulWidget {
+  const NoteEdit({Key? key}) : super(key: key);
   @override
-  _NoteScreenState createState() => _NoteScreenState();
+  _NoteEditState createState() => _NoteEditState();
 }
 
-class _NoteScreenState extends State<NoteScreen> {
+class _NoteEditState extends State<NoteEdit> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final myController = TextEditingController();
+  var myController = TextEditingController();
 
   @override
   void dispose() {
@@ -26,10 +25,12 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
   Random random = Random();
-  bool isImportant = false;
-  bool isChecked = false;
+
   @override
   Widget build(BuildContext context) {
+    NoteModel note = ModalRoute.of(context)!.settings.arguments as NoteModel;
+    bool isImportant = note.isImportant == 1 ? true : false;
+    myController = TextEditingController(text: note.content);
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -55,12 +56,16 @@ class _NoteScreenState extends State<NoteScreen> {
                   child: IconButton(
                     onPressed: () {
                       setState(() {
-                        isChecked == false ? isChecked = true : isChecked = false;
+                        note.isImportant == 1 ? note.isImportant = 0 : note.isImportant = 1;
+                        DatabaseHelper.instance.update({
+                          DatabaseHelper.noteId: note.id,
+                          DatabaseHelper.noteBool: note.isImportant,
+                        });
                       });
                     },
                     icon: Icon(
-                      isChecked ? Icons.star : Icons.star_border,
-                      color: isChecked ? Colors.red : Colors.grey[800],
+                      isImportant ? Icons.star : Icons.star_border,
+                      color: isImportant ? Colors.red : Colors.grey[800],
                       size: 20,
                     ),
                   ),
@@ -93,6 +98,19 @@ class _NoteScreenState extends State<NoteScreen> {
                     ),
                   ),
                 ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: IconButton(
+                    onPressed: () async {
+                      await DatabaseHelper.instance.delete(note.id!);
+
+                      setState(() {
+                        Navigator.pop(context);
+                      });
+                    },
+                    icon: Icon(Icons.close, color: Colors.grey[800], size: 16),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: ElevatedButton(
@@ -100,24 +118,15 @@ class _NoteScreenState extends State<NoteScreen> {
                       // Validate will return true if the form is valid, or false if
                       // the form is invalid.
                       if (_formKey.currentState!.validate()) {
-                        int color1 = random.nextInt(cardColors.length);
-                        int color2 = random.nextInt(cardColors.length);
-
                         setState(() {
-                          DatabaseHelper.instance.insert({
+                          DatabaseHelper.instance.update({
+                            DatabaseHelper.noteId: note.id,
                             DatabaseHelper.noteContent: myController.text,
-                            DatabaseHelper.noteBool: isChecked,
+                            DatabaseHelper.noteBool: isImportant,
                             DatabaseHelper.noteCreatedOn: DateTime.now().toIso8601String(),
-                            DatabaseHelper.noteColor1: color1,
-                            DatabaseHelper.noteColor2: color2,
                           });
-                          NoteModel note = NoteModel(
-                              isImportant: isChecked ? 1 : 0,
-                              content: myController.text,
-                              createdOn: DateTime.now(),
-                              color1: color1,
-                              color2: color2);
-                          Navigator.pop(context, note);
+
+                          Navigator.pop(context);
                         });
                       }
                     },
