@@ -41,23 +41,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       darkTheme: myTheme.myDarkTheme,
       theme: myTheme.myLightTheme,
-      home: AnimatedSplashScreen(
-        duration: 3000,
-        splash: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text('Made With'),
-            FlutterLogo(
-              style: FlutterLogoStyle.horizontal,
-              size: 100,
-            ),
-          ],
-        ),
-        nextScreen: const MyHomePage(),
-        splashTransition: SplashTransition.rotationTransition,
-        pageTransitionType: PageTransitionType.fade,
-        backgroundColor: const Color(0xffF0F8FF),
-      ),
+      home: const MyHomePage(),
     );
   }
 }
@@ -71,23 +55,36 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   //list holds notes from Database-------------
   late Future<List<NoteModel>> futureNoteList;
+  late Future<List<NoteModel>> futureFavoriteNoteList;
+  late Future<List<NoteModel>> futureNonFavoriteNoteList;
 
   Future<List<NoteModel>> getAllNotes() async {
     return DatabaseHelper.instance.queryAll();
   }
+
+  Future<List<NoteModel>> getAllFavoriteNotes() async {
+    return DatabaseHelper.instance.queryAllFavorites();
+  }
+
+  Future<List<NoteModel>> getAllNonFavoriteNotes() async {
+    return DatabaseHelper.instance.queryAllNonFavorites();
+  }
+
   //--------------------------------------------------------
 
   final GlobalKey<AnimatedListState> key = GlobalKey<AnimatedListState>();
   int? _selectedItem;
   TextStyle dateStyle = const TextStyle(fontWeight: FontWeight.w300, fontSize: 10);
   TextStyle contentStyle = const TextStyle(fontWeight: FontWeight.normal, fontSize: 14);
-
+  // ignore: prefer_final_fields
+  bool _isGlowActive = true;
 //Init state function --------------------------------------
   @override
   void initState() {
     super.initState();
-
     futureNoteList = getAllNotes();
+    futureFavoriteNoteList = getAllFavoriteNotes();
+    futureNonFavoriteNoteList = getAllNonFavoriteNotes();
   }
 
 //----------------------------------------------------------
@@ -291,7 +288,7 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: cardColors[note.color2],
+              color: _isGlowActive ? cardColors[note.color2] : Colors.transparent,
               blurRadius: 3.0,
               spreadRadius: 2.0,
               offset: Offset.zero,

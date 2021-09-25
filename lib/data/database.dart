@@ -68,6 +68,22 @@ class DatabaseHelper {
     return noteslist;
   }
 
+  Future<List<NoteModel>> queryAllFavorites() async {
+    Database db = await instance.database;
+    var notes = await db.query(notesTable, where: '$noteBool = ?', whereArgs: [1]);
+    List<NoteModel> noteslist =
+        notes.isNotEmpty ? notes.map((e) => NoteModel.fromMap(e)).toList() : [];
+    return noteslist;
+  }
+
+  Future<List<NoteModel>> queryAllNonFavorites() async {
+    Database db = await instance.database;
+    var notes = await db.query(notesTable, where: '$noteBool = ?', whereArgs: [0]);
+    List<NoteModel> noteslist =
+        notes.isNotEmpty ? notes.map((e) => NoteModel.fromMap(e)).toList() : [];
+    return noteslist;
+  }
+
   Future update(Map<String, dynamic> row) async {
     Database db = await instance.database;
     int id = row[noteId];

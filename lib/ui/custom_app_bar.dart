@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tasks_brz/data/myTheme.dart';
 
 myCustomAppBar(BuildContext context) {
   return AppBar(
-    //systemOverlayStyle: const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
     elevation: 0,
-
     backgroundColor: Colors.transparent,
     centerTitle: true,
     title: RichText(

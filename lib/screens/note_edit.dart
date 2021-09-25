@@ -108,11 +108,13 @@ class _NoteEditState extends State<NoteEdit> {
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
                         controller: myController,
+                        autofocus: true,
+                        enableInteractiveSelection: true,
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Note content',
                           constraints: BoxConstraints(
-                            minHeight: MediaQuery.of(context).size.height / 3,
+                            minHeight: MediaQuery.of(context).size.height * 0.66,
                           ),
                         ),
                         validator: (String? value) {
