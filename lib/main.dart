@@ -41,6 +41,10 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       darkTheme: myTheme.myDarkTheme,
       theme: myTheme.myLightTheme,
+      supportedLocales: const [
+        Locale('en', ''), // English, no country code
+        Locale('ar', ''), // Arabic, no country code
+      ],
       home: const MyHomePage(),
     );
   }
@@ -73,7 +77,6 @@ class _MyHomePageState extends State<MyHomePage> {
   //--------------------------------------------------------
 
   final GlobalKey<AnimatedListState> key = GlobalKey<AnimatedListState>();
-  int? _selectedItem;
   TextStyle dateStyle = const TextStyle(fontWeight: FontWeight.w300, fontSize: 10);
   TextStyle contentStyle = const TextStyle(fontWeight: FontWeight.normal, fontSize: 14);
   // ignore: prefer_final_fields
@@ -83,9 +86,12 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     futureNoteList = getAllNotes();
-    futureFavoriteNoteList = getAllFavoriteNotes();
-    futureNonFavoriteNoteList = getAllNonFavoriteNotes();
+    // futureFavoriteNoteList = getAllFavoriteNotes();
+    //futureNonFavoriteNoteList = getAllNonFavoriteNotes();
   }
+
+  //var _textAlign = TextAlign.left;
+  var _align = Alignment.centerRight;
 
 //----------------------------------------------------------
   @override
@@ -107,23 +113,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ? const Center(
                     child: Text('Add a note by Pressing The add Button below'),
                   )
-                :
-                // AnimatedList(
-                //     physics: const BouncingScrollPhysics(),
-                //     key: key,
-                //     initialItemCount: snapshot.data!.length,
-                //     itemBuilder: (context, index, animation) =>
-                //         AnimatedNoteCard(snapshot.data![index], index, snapshot.data!),
-                //   );
-
-                StaggeredGridView.countBuilder(
+                : StaggeredGridView.countBuilder(
                     physics: const BouncingScrollPhysics(),
-                    mainAxisSpacing: 5,
+                    mainAxisSpacing: 4,
                     crossAxisCount: 4,
                     itemCount: snapshot.data!.length,
-
                     itemBuilder: (BuildContext context, int index) => OpenContainer(
-                      transitionDuration: const Duration(milliseconds: 700),
+                      transitionDuration: const Duration(milliseconds: 400),
                       onClosed: (context) {
                         setState(() {
                           futureNoteList = getAllNotes();
@@ -139,13 +135,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         return NoteEdit(note: snapshot.data![index]);
                       },
                     ),
-                    // noteCard(snapshot.data![index]),
                     staggeredTileBuilder: (int index) => const StaggeredTile.fit(
                       2,
                     ),
                     crossAxisSpacing: 1.0,
                   );
           }),
+
+      // ---------------------------------------Floating button--------------------
       floatingActionButton: FloatingActionButton.small(
         backgroundColor: const Color(0xfff1404b),
         elevation: 5,
@@ -155,9 +152,13 @@ class _MyHomePageState extends State<MyHomePage> {
             : Colors.grey.shade900,
         splashColor: Colors.pink,
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return const NoteScreen();
-          })).then((value) {
+          Navigator.push(
+                  context,
+                  PageTransition(
+                      type: PageTransitionType.scale,
+                      alignment: Alignment.bottomCenter,
+                      child: const NoteScreen()))
+              .then((value) {
             setState(() {
               futureNoteList = getAllNotes();
             });
@@ -192,197 +193,128 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,
-    );
-  }
-
-  Widget AnimatedNoteCard(NoteModel note, int index, List<NoteModel> list) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      elevation: 10,
-      margin: const EdgeInsets.fromLTRB(5, 10, 5, 5),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: cardColors[note.color2],
-              blurRadius: 15.0,
-              spreadRadius: 5.0,
-              offset: Offset.zero,
-            ),
-          ],
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              cardColors[note.color1],
-              cardColors[note.color2],
-            ],
-          ),
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: 50,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Text(DateFormat('KK:mm ,dd-MM-yyyy ').format(note.createdOn),
-                        style: dateStyle),
-                  ),
-                  Flexible(
-                    child: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          note.isImportant == 1 ? note.isImportant = 0 : note.isImportant = 1;
-                          DatabaseHelper.instance.update({
-                            DatabaseHelper.noteId: note.id,
-                            DatabaseHelper.noteBool: note.isImportant,
-                          });
-                          futureNoteList = getAllNotes();
-                        });
-                      },
-                      icon: Icon(
-                        note.isImportant == 1 ? Icons.star : Icons.star_border,
-                        color: note.isImportant == 1 ? Colors.red : Colors.grey[800],
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Text(note.content, style: contentStyle),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                  onPressed: () async {
-                    await DatabaseHelper.instance.delete(note.id!);
-
-                    setState(() {
-                      _removeItem(index, list);
-                    });
-                  },
-                  icon: Icon(Icons.delete_forever, color: Colors.grey[800]),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
+      // ---------------------------------------Floating button end --------------------
     );
   }
 
   Widget noteCard(NoteModel note) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      elevation: 0,
-      shadowColor: Colors.transparent,
-      margin: const EdgeInsets.fromLTRB(8, 10, 8, 5),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: _isGlowActive ? cardColors[note.color2] : Colors.transparent,
-              blurRadius: 3.0,
-              spreadRadius: 2.0,
-              offset: Offset.zero,
-            ),
-          ],
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              cardColors[note.color1],
-              cardColors[note.color2],
+    note.isImportant == 1 ? _isGlowActive = true : _isGlowActive = false;
+    if (note.content[0].contains(RegExp(r'[ا-ي]'))) {
+      // _textAlign = TextAlign.right;
+      _align = Alignment.centerRight;
+    }
+    return Dismissible(
+      key: Key('${note.id!}'),
+      onDismissed: (DismissDirection direction) async {
+        await DatabaseHelper.instance.delete(note.id!);
+        setState(() {
+          futureNoteList = getAllNotes();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Note dismissed')));
+      },
+      confirmDismiss: (DismissDirection direction) async {
+        await DatabaseHelper.instance.delete(note.id!);
+        setState(() {
+          futureNoteList = getAllNotes();
+        });
+      },
+      background: Container(
+        color: MediaQuery.of(context).platformBrightness == Brightness.light
+            ? const Color(0xffF0F8FF)
+            : const Color(0xff0f0f0f),
+      ),
+      dismissThresholds: const {
+        DismissDirection.startToEnd: 0.5,
+        DismissDirection.endToStart: 0.5,
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        margin: const EdgeInsets.fromLTRB(8, 10, 8, 5),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: _isGlowActive ? cardColors[note.color2] : Colors.transparent,
+                blurRadius: 4.0,
+                spreadRadius: 4.0,
+                offset: Offset.zero,
+              ),
             ],
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                cardColors[note.color1],
+                cardColors[note.color2],
+              ],
+            ),
           ),
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: 50,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Text(DateFormat('KK:mm dd-MM-yyyy').format(note.createdOn),
-                        style: dateStyle),
-                  ),
-                  Flexible(
-                    child: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          note.isImportant == 1 ? note.isImportant = 0 : note.isImportant = 1;
-                          DatabaseHelper.instance.update({
-                            DatabaseHelper.noteId: note.id,
-                            DatabaseHelper.noteBool: note.isImportant,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: 50,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(DateFormat('KK:mm dd-MM-yyyy').format(note.createdOn),
+                          style: dateStyle),
+                    ),
+                    Flexible(
+                      child: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            note.isImportant == 1 ? note.isImportant = 0 : note.isImportant = 1;
+                            DatabaseHelper.instance.update({
+                              DatabaseHelper.noteId: note.id,
+                              DatabaseHelper.noteBool: note.isImportant,
+                              DatabaseHelper.noteCreatedOn: note.createdOn.toIso8601String(),
+                            });
+                            futureNoteList = getAllNotes();
                           });
-                          futureNoteList = getAllNotes();
-                        });
-                      },
-                      icon: Icon(
-                        note.isImportant == 1 ? Icons.star : Icons.star_border,
-                        color: note.isImportant == 1 ? Colors.grey.shade900 : Colors.grey.shade800,
-                        size: 20,
+                        },
+                        icon: Icon(
+                          note.isImportant == 1 ? Icons.star : Icons.star_border,
+                          color:
+                              note.isImportant == 1 ? Colors.grey.shade900 : Colors.grey.shade800,
+                          size: 20,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Text(note.content, style: contentStyle),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                  onPressed: () async {
-                    await DatabaseHelper.instance.delete(note.id!);
-
-                    setState(() {
-                      futureNoteList = getAllNotes();
-                    });
-                  },
-                  icon: Icon(Icons.close, color: Colors.grey[800], size: 16),
+                  ],
                 ),
-              ),
-            ],
+                Align(
+                  alignment: _align,
+                  child: Text(
+                    note.content,
+                    style: contentStyle,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: IconButton(
+                    onPressed: () async {
+                      await DatabaseHelper.instance.delete(note.id!);
+
+                      setState(() {
+                        futureNoteList = getAllNotes();
+                      });
+                    },
+                    icon: Icon(Icons.close, color: Colors.grey[800], size: 16),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
-  }
-
-  void _addItem(note, List list) {
-    list.insert(list.length + 1, note);
-    key.currentState!.insertItem(0, duration: const Duration(seconds: 1));
-  }
-
-// Remove an item
-// This is trigger when the trash icon associated with an item is tapped
-  void _removeItem(int index, List list) {
-    key.currentState!.removeItem(index, (_, animation) {
-      return SizeTransition(
-        sizeFactor: animation,
-        child: const Card(
-          margin: EdgeInsets.all(10),
-          elevation: 10,
-          color: Colors.purple,
-          child: ListTile(
-            contentPadding: EdgeInsets.all(15),
-            title: Text("Goodbye", style: TextStyle(fontSize: 24)),
-          ),
-        ),
-      );
-    }, duration: const Duration(seconds: 1));
-
-    list.removeAt(index);
   }
 }

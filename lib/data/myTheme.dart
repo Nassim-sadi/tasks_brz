@@ -9,6 +9,9 @@ class myTheme {
   static final myLightTheme = ThemeData(
       appBarTheme: AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle.dark,
+        iconTheme: IconThemeData(
+          color: Colors.black, //change your color here
+        ),
       ),
       scaffoldBackgroundColor: Color(0xffF0F8FF),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -41,10 +44,13 @@ class myTheme {
   static final myDarkTheme = ThemeData(
     appBarTheme: AppBarTheme(
       systemOverlayStyle: SystemUiOverlayStyle.light,
+      iconTheme: IconThemeData(
+        color: Colors.white, //change your color here
+      ),
     ),
     scaffoldBackgroundColor: Color(0xff0f0f0f),
     colorScheme: ColorScheme.dark(
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       // primary: Color(0xffF0F8FF),
       primary: Color(0xfff1404b),
       primaryVariant: Colors.red,
