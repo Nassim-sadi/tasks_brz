@@ -19,8 +19,6 @@ List<Color> cardColors = const [
   Color(0xffEB44CE),
   Color(0xffF27652),
   Color(0xffDB3641),
-  Color(0xffDCE9ED),
-  Color(0xff707070),
   Color(0xffF5D538),
   Color(0xffB5EB86),
   Color(0xffe88479),

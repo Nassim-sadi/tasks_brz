@@ -238,8 +238,8 @@ class _MyHomePageState extends State<MyHomePage> {
             boxShadow: [
               BoxShadow(
                 color: _isGlowActive ? cardColors[note.color2] : Colors.transparent,
-                blurRadius: 4.0,
-                spreadRadius: 4.0,
+                blurRadius: 3.5,
+                spreadRadius: 3.5,
                 offset: Offset.zero,
               ),
             ],
