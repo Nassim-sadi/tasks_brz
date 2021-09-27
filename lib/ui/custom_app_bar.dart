@@ -10,7 +10,7 @@ myCustomAppBar(BuildContext context) {
     title: RichText(
       text: TextSpan(children: [
         TextSpan(
-            text: 'Tasks',
+            text: 'Notes',
             style: GoogleFonts.balsamiqSans(
               textStyle: TextStyle(
                   color: MediaQuery.of(context).platformBrightness == Brightness.dark
