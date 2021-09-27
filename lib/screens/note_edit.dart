@@ -4,11 +4,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:tasks_brz/data/database.dart';
-import 'package:tasks_brz/models/noteModel.dart';
-import 'package:tasks_brz/ui/custom_app_bar.dart';
-import 'package:tasks_brz/data/lists.dart';
+import 'package:NotesBRZ/data/database.dart';
+import 'package:NotesBRZ/models/noteModel.dart';
+import 'package:NotesBRZ/ui/custom_app_bar.dart';
+import 'package:NotesBRZ/data/lists.dart';
 
 class NoteEdit extends StatefulWidget {
   final NoteModel note;
@@ -73,9 +72,7 @@ class _NoteEditState extends State<NoteEdit> {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: widget.note.isImportant == 1
-                          ? cardColors[widget.note.color2]
-                          : Colors.transparent,
+                      color: isImportant ? cardColors[widget.note.color2] : Colors.transparent,
                       blurRadius: 5.0,
                       spreadRadius: 5.0,
                       offset: Offset.zero,
@@ -105,9 +102,7 @@ class _NoteEditState extends State<NoteEdit> {
                         IconButton(
                           onPressed: () {
                             setState(() {
-                              widget.note.isImportant == 1
-                                  ? widget.note.isImportant = 0
-                                  : widget.note.isImportant = 1;
+                              isImportant ? isImportant = false : isImportant = true;
                               DatabaseHelper.instance.update({
                                 DatabaseHelper.noteId: widget.note.id,
                                 DatabaseHelper.noteBool: widget.note.isImportant,

@@ -1,4 +1,8 @@
-import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:NotesBRZ/data/database.dart';
+import 'package:NotesBRZ/models/noteModel.dart';
+import 'package:NotesBRZ/screens/noteScreen.dart';
+import 'package:NotesBRZ/screens/note_edit.dart';
+import 'package:NotesBRZ/ui/custom_app_bar.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,17 +10,10 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:tasks_brz/data/database.dart';
-import 'package:tasks_brz/data/myTheme.dart';
-import 'package:tasks_brz/models/noteModel.dart';
+import 'package:NotesBRZ/data/myTheme.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:tasks_brz/screens/noteScreen.dart';
-import 'package:tasks_brz/screens/note_edit.dart';
-import 'package:tasks_brz/ui/custom_app_bar.dart';
 import 'data/lists.dart';
 
 void main() async {
@@ -110,8 +107,12 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             }
             return snapshot.data!.isEmpty
-                ? const Center(
-                    child: Text('Add a note by Pressing The add Button below'),
+                ? Center(
+                    child: Text('Add a note by Pressing The add Button below',
+                        style: TextStyle(
+                            color: MediaQuery.of(context).platformBrightness == Brightness.dark
+                                ? const Color(0xfff8e8f8)
+                                : const Color(0xff08182b))),
                   )
                 : StaggeredGridView.countBuilder(
                     physics: const BouncingScrollPhysics(),
@@ -202,6 +203,8 @@ class _MyHomePageState extends State<MyHomePage> {
     if (note.content[0].contains(RegExp(r'[ا-ي]'))) {
       // _textAlign = TextAlign.right;
       _align = Alignment.centerRight;
+    } else {
+      _align = Alignment.centerLeft;
     }
     return Dismissible(
       key: Key('${note.id!}'),

@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'package:path/path.dart';
-import 'package:tasks_brz/models/noteModel.dart';
+import 'package:NotesBRZ/models/noteModel.dart';
 
 class DatabaseHelper {
   //Data types
@@ -65,7 +65,7 @@ class DatabaseHelper {
     //Use this line to sort by importance until i figure out Grouping
     // var notes = await db.query(notesTable, orderBy: '$noteBool DESC ,$noteCreatedOn ASC');
 
-    var notes = await db.query(notesTable, orderBy: '$noteCreatedOn ASC');
+    var notes = await db.query(notesTable, orderBy: '$noteId ASC');
     List<NoteModel> noteslist =
         notes.isNotEmpty ? notes.map((e) => NoteModel.fromMap(e)).toList() : [];
     return noteslist;

@@ -4,10 +4,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:tasks_brz/data/database.dart';
-import 'package:tasks_brz/data/lists.dart';
-import 'package:tasks_brz/models/noteModel.dart';
-import 'package:tasks_brz/ui/custom_app_bar.dart';
+import 'package:NotesBRZ/data/database.dart';
+import 'package:NotesBRZ/data/lists.dart';
+import 'package:NotesBRZ/models/noteModel.dart';
+import 'package:NotesBRZ/ui/custom_app_bar.dart';
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({Key? key}) : super(key: key);
